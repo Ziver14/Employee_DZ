@@ -5,23 +5,35 @@
 #include<string>
 #include<iomanip>
 #include<set>
+#include<sstream>
 
 struct Employee {
-	int id;
 	std::string name;
+	int id;
 	bool isDayShift;
 	double salary;
 };
 
-void printEmployee(const Employee& emp) {
-	std::cout <<"ID: " << std::setw(2) << emp.id  <<" |Name: " << std::setw(15) << emp.name<<
-		" |Shift:  " <<(emp.isDayShift ? " Day " : "Night") << std::setw(5) << "|Salaty " << 
-		std::setw(5) <<emp.salary << std::endl;
+bool operator<(const Employee& a, const Employee& b) {
+	return a.id < b.id;
 }
+
+void printEmployee(const Employee& emp) {
+	std::cout << "Name:" << emp.name << '\t'
+		<< "id" << emp.id << '\t'
+		<< "shift" << emp.isDayShift << '\t'
+		<< "salary" << emp.salary << std::endl;
+}
+
+
+
+
+
 
 int main() {
 	setlocale(LC_ALL, "ru");
-	const int N = 10;		//колличество сотрудников
+
+	const int N = 15;		//колличество сотрудников
 	std::vector<Employee>emploees;
 
 	//Генерация случайных данных о сотрудниках
@@ -108,33 +120,38 @@ int main() {
 	std::cout << std::endl;
 
 	//Записывае информацию о сотрудниках в файл.
+	std::string path = "Employees_info.txt";
 	std::ofstream file("Employees_info.txt");
 	if (!file.is_open()) {
 		std::cerr << "Error is opening file";
+		return 1;
 	}
 	else {
 		file << "ТОП 3 дневных сотрудника с самой высокой зп:\n";
 		for (int i = 0; i < 3; i++)
 		{
-			file << "ID: " << dayShiftEmployees[i].id << " | Name: " <<
-				dayShiftEmployees[i].name << " | Salary: " <<
-				dayShiftEmployees[i].salary << std::endl;
+			file << "Name: "<<dayShiftEmployees[i].name<<'\t'
+				<<"id: "<<dayShiftEmployees[i].id<<'\t'
+				<<"shift: " <<dayShiftEmployees[i].isDayShift
+				<<"salary: "<<dayShiftEmployees[i].salary << std::endl;
 		}
 		file << "--------------------------------------------\n";
 		file << "ТОП 3 ночных сотрудника с самой высокой зп:\n";
 		for (int i = 0; i < 3; i++)
 		{
-			file << "ID: " << nightShiftEmployees[i].id << " | Name: " <<
-				nightShiftEmployees[i].name << " | Salary: " <<
-				nightShiftEmployees[i].salary << std::endl;
+			file << "Name: " << nightShiftEmployees[i].name << '\t'
+				<< "id: " << nightShiftEmployees[i].id << '\t'
+				<< "shift: " << nightShiftEmployees[i].isDayShift
+				<< "salary: " << nightShiftEmployees[i].salary << std::endl;
 		}
 		file << "--------------------------------------------\n";
 		file << "ТОП 3 сотрудника с самой высокой зп:\n";
 		for (int i = 0; i < 3; i++)
 		{
-			file << "ID: " << emploees[i].id << " | Name: " <<
-				emploees[i].name << " | Salary: " <<
-				emploees[i].salary << std::endl;
+			file << "Name: " << emploees[i].name << '\t'
+				<< "id: " << emploees[i].id << '\t'
+				<< "shift: " << emploees[i].isDayShift
+				<< "salary: " << emploees[i].salary << std::endl;
 		}
 		file << "--------------------------------------------\n";
 	}
@@ -170,54 +187,68 @@ int main() {
 		std::ofstream file1("Employees_info.txt",std::ios_base::app);
 		if (!file1.is_open()) {
 			std::cerr << "Error is opening file";
+			return 1;
 		}
 		else {
 			file1 << "ТОП 3 дневных сотрудника с самой низкой зп:\n";
 			for (int i = dayShiftEmployees.size() - 3; i < dayShiftEmployees.size(); i++)
 			{
-				file1 << "ID: " << dayShiftEmployees[i].id << " | Name: " <<
-					dayShiftEmployees[i].name << " | Salary: " <<
-					dayShiftEmployees[i].salary << std::endl;
+				file1 << "Name: " << dayShiftEmployees[i].name << '\t'
+					<< "id: " << dayShiftEmployees[i].id << '\t'
+					<< "shift: " << dayShiftEmployees[i].isDayShift
+					<< "salary: " << dayShiftEmployees[i].salary << std::endl;
 			}
 			file1 << "--------------------------------------------\n";
 			file1 << "ТОП 3 ночных сотрудника с самой низкой зп:\n";
 			for (int i = nightShiftEmployees.size() - 3; i < nightShiftEmployees.size(); i++)
 			{
-				file1 << "ID: " << nightShiftEmployees[i].id << " | Name: " <<
-					nightShiftEmployees[i].name << " | Salary: " <<
-					nightShiftEmployees[i].salary << std::endl;
+				file1 << "Name: " << nightShiftEmployees[i].name << '\t'
+					<< "id: " << nightShiftEmployees[i].id << '\t'
+					<< "shift: " << nightShiftEmployees[i].isDayShift
+					<< "salary: " << nightShiftEmployees[i].salary << std::endl;
 			}
+			
 			file1 << "--------------------------------------------\n";
 			file1 << "ТОП 3 сотрудника с самой низкой зп:\n";
 			for (int i = emploees.size() - 3; i < emploees.size(); i++)
 			{
-				file1 << "ID: " << emploees[i].id << " | Name: " <<
-					emploees[i].name << " | Salary: " <<
-					emploees[i].salary << std::endl;
+				file1 << "Name: " << emploees[i].name << '\t'
+					<< "id: " << emploees[i].id << '\t'
+					<< "shift: " << emploees[i].isDayShift
+					<< "salary: " << emploees[i].salary << std::endl;
 			}
 		}
 		file1.close();
 
-		//Считываем данные из файла и используем коллекцию set чтобы удалить дубликаты
-
-		std::set<Employee>uniqueEmployees;
+		std::cout << std::endl;
+		std::cout << std::endl;
+	//Считываем данные из файла и используем коллекцию set чтобы удалить дубликаты
+		
 		std::ifstream file3("Employees_info.txt");
-		if (!file3.is_open()) {
-			std::cerr << "Error opening file";
+		if (!file3.is_open())
+		{
+			std::cerr << "Error opening file\n";
+			return 1;
 		}
-		
+
+		std::set<Employee>uniqueEmp;
+		std::string line;
+		while (std::getline(file3, line))
+		{
+			std::istringstream ss(line);
+			std::string temp;
+
 			Employee emp;
+			ss >> temp >> temp >> emp.name >> temp >> emp.id >> temp >> 
+				emp.isDayShift >> temp >> emp.salary;
+			uniqueEmp.insert(emp);
+		}
+		file3.close();
 
-			while (file3 >> emp.id >> emp.name >> emp.isDayShift >> emp.salary) {
-				uniqueEmployees.insert(emp);
-			}
-
-			std::cout << "Уникальные сотрудники:\n";
-			for (const auto& emp : uniqueEmployees) {
-				printEmployee(emp);
-			}
-			
-		
+		for (const auto& emp : uniqueEmp)
+		{
+			printEmployee(emp);
+		}
 
 		
 
